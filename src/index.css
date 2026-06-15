@@ -1,0 +1,165 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #060608;
+  color: #ece4d6;
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* the dark room: a faint warm lamp glow from above, deep at the edges */
+  background-image:
+    radial-gradient(120% 80% at 50% -10%, rgba(200, 162, 90, 0.07), transparent 60%),
+    radial-gradient(100% 100% at 50% 120%, rgba(0, 0, 0, 0.6), transparent 55%);
+  background-attachment: fixed;
+  overscroll-behavior: none;
+}
+
+/* ── the film frame ──────────────────────────────────────────────────────── */
+
+/* Letterboxed hero frame: a 2.39:1 slate. */
+.film-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2.39 / 1;
+  overflow: hidden;
+  background: #050507;
+  box-shadow:
+    0 0 0 1px rgba(200, 162, 90, 0.12),
+    0 40px 120px -40px rgba(0, 0, 0, 0.9),
+    inset 0 0 140px 30px rgba(0, 0, 0, 0.7);
+}
+@media (max-width: 640px) {
+  .film-frame {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+.film-frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* slightly desaturated, filmic */
+  filter: saturate(0.86) contrast(1.04) brightness(0.96);
+}
+
+/* film grain overlay — animated unless reduced-motion */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  animation: grainShift 0.6s steps(3) infinite;
+}
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(-6%, 4%); }
+  66% { transform: translate(4%, -5%); }
+  100% { transform: translate(-3%, 2%); }
+}
+
+/* a soft vignette + faint scanline shimmer inside the frame */
+.frame-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 120% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* slow projector flicker on the whole frame */
+.projector {
+  animation: flicker 6s ease-in-out infinite;
+}
+
+/* the slow Ken-Burns drift on the still */
+.ken-burns {
+  animation: slowZoom 180s ease-out both;
+  transform-origin: center;
+}
+
+/* ── the slate / title card ──────────────────────────────────────────────── */
+
+.slate {
+  font-family: "Cormorant Garamond", Georgia, serif;
+}
+.tracking-slate {
+  letter-spacing: 0.42em;
+}
+
+/* hairline brass rule */
+.rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200, 162, 90, 0.5), transparent);
+  border: none;
+}
+
+/* ── breathing dot ───────────────────────────────────────────────────────── */
+.breath-dot {
+  border-radius: 9999px;
+  background: radial-gradient(circle at 50% 40%, #e8b86a, #9a7838 70%, transparent);
+  box-shadow: 0 0 30px 6px rgba(200, 162, 90, 0.4);
+  animation: breathe var(--breath, 8s) ease-in-out infinite;
+}
+
+/* ── scrollbars ──────────────────────────────────────────────────────────── */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(200, 162, 90, 0.28);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 162, 90, 0.5);
+  background-clip: content-box;
+}
+::selection {
+  background: rgba(200, 162, 90, 0.32);
+  color: #fff;
+}
+
+/* ── reduced motion: kill all the moving parts ───────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .grain::after { animation: none; opacity: 0.06; }
+  .ken-burns { animation: none; }
+  .projector { animation: none; }
+}
+
+/* App-controlled reduced motion (settings toggle adds .reduce-motion to root) */
+.reduce-motion .grain::after,
+.reduce-motion .ken-burns,
+.reduce-motion .projector,
+.reduce-motion .breath-dot {
+  animation: none !important;
+}
+.reduce-motion .breath-dot {
+  opacity: 0.85;
+}
