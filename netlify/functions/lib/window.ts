@@ -199,7 +199,7 @@ export async function composeWindow(req: ComposeRequest): Promise<WindowSpec> {
   const palette = (i.palette as string[]) ?? [];
 
   return {
-    place: String(i.place ?? "Quelque part"),
+    place: String(i.place ?? (lang === "en" ? "Somewhere" : "Quelque part")),
     year: Math.round(Number(i.year ?? 1900)),
     title: String(i.title ?? ""),
     imagePrompt: String(i.imagePrompt ?? ""),

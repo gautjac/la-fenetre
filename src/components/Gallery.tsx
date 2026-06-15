@@ -84,7 +84,7 @@ function Card({
       <button
         onClick={() => onOpen(w, w.imageUrl)}
         className="block w-full text-left"
-        aria-label={`${w.place} ${yearLabel(w.year)}`}
+        aria-label={`${w.place} ${yearLabel(w.year, lang)}`}
       >
         <div
           className="aspect-video bg-screen-deep relative overflow-hidden"
@@ -101,7 +101,7 @@ function Card({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-3">
             <div className="slate tracking-[0.25em] text-xs uppercase text-bone">
-              {w.place} <span className="text-brass/70">· {yearLabel(w.year)}</span>
+              {w.place} <span className="text-brass/70">· {yearLabel(w.year, lang)}</span>
             </div>
             <div className="slate italic text-bone/70 text-sm">{w.title}</div>
           </div>

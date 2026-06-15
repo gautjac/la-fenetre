@@ -4,6 +4,18 @@
 
 export type Lang = "fr" | "en";
 
+/**
+ * Text that may be bilingual. The curated seed atlas stores both languages as
+ * `{ fr, en }`; AI-composed windows arrive already in the requested language as
+ * a plain `string`. `resolveText` collapses either shape to the active language.
+ */
+export type LocalizedText = string | { fr: string; en: string };
+
+export function resolveText(value: LocalizedText, lang: Lang): string {
+  if (typeof value === "string") return value;
+  return value[lang] ?? value.fr ?? value.en ?? "";
+}
+
 export type SoundLayerKind =
   | "murmur"
   | "rain"
@@ -36,15 +48,15 @@ export interface WindowSpec {
   title: string;
   imagePrompt: string;
   soundscape: Soundscape;
-  noticing: string;
-  context: string;
+  noticing: LocalizedText;
+  context: LocalizedText;
   palette: [string, string, string];
 }
 
-/** Format the year as a slate label: 1923, an 1000, 410 av. J.-C. */
-export function yearLabel(year: number): string {
-  if (year < 0) return `${Math.abs(year)} AV. J.-C.`;
-  if (year < 1000) return `AN ${year}`;
+/** Format the year as a slate label, localized: 1923, AN 1000 / YEAR 1000, 410 AV. J.-C. / 410 BCE */
+export function yearLabel(year: number, lang: Lang = "fr"): string {
+  if (year < 0) return lang === "en" ? `${Math.abs(year)} BCE` : `${Math.abs(year)} AV. J.-C.`;
+  if (year < 1000) return lang === "en" ? `YEAR ${year}` : `AN ${year}`;
   return String(year);
 }
 
@@ -72,10 +84,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 98,
     },
-    noticing:
-      "Remarque la fumée de cigarette qui monte droit, puis hésite dans un courant d'air que tu ne sens pas.",
-    context:
-      "En 1923, Lisbonne vivait de ses cafés littéraires, où poètes et employés de bureau refaisaient le monde devant un verre de vinho tinto.",
+    noticing: {
+      fr: "Remarque la fumée de cigarette qui monte droit, puis hésite dans un courant d'air que tu ne sens pas.",
+      en: "Notice the cigarette smoke rising straight up, then wavering in a draught you can't feel.",
+    },
+    context: {
+      fr: "En 1923, Lisbonne vivait de ses cafés littéraires, où poètes et employés de bureau refaisaient le monde devant un verre de vinho tinto.",
+      en: "In 1923, Lisbon lived through its literary cafés, where poets and office clerks remade the world over a glass of vinho tinto.",
+    },
     palette: ["#1c1610", "#5a3d28", "#c8954a"],
   },
   {
@@ -92,10 +108,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 110,
     },
-    noticing:
-      "Écoute l'eau : une seule goutte tombe d'une feuille dans l'étang, et le silence revient plus profond.",
-    context:
-      "Vers l'an 1000, la cour Heian de Kyoto raffinait la poésie et la contemplation des saisons ; Murasaki Shikibu y écrivait « Le Dit du Genji ».",
+    noticing: {
+      fr: "Écoute l'eau : une seule goutte tombe d'une feuille dans l'étang, et le silence revient plus profond.",
+      en: "Listen to the water: a single drop falls from a leaf into the pond, and the silence returns deeper.",
+    },
+    context: {
+      fr: "Vers l'an 1000, la cour Heian de Kyoto raffinait la poésie et la contemplation des saisons ; Murasaki Shikibu y écrivait « Le Dit du Genji ».",
+      en: "Around the year 1000, Kyoto's Heian court refined poetry and the contemplation of the seasons; Murasaki Shikibu was writing 'The Tale of Genji' there.",
+    },
     palette: ["#1a1f1a", "#3c4a3a", "#9aa886"],
   },
   {
@@ -112,10 +132,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 73,
     },
-    noticing:
-      "Regarde la chaussée mouillée : les néons s'y dédoublent, et chaque pas d'un passant brouille un reflet.",
-    context:
-      "En 1947, la rue Sainte-Catherine était l'artère commerciale du Montréal d'après-guerre, ses tramways et ses grands magasins illuminés jusqu'à tard.",
+    noticing: {
+      fr: "Regarde la chaussée mouillée : les néons s'y dédoublent, et chaque pas d'un passant brouille un reflet.",
+      en: "Watch the wet pavement: the neon signs double in it, and every passer-by's step blurs a reflection.",
+    },
+    context: {
+      fr: "En 1947, la rue Sainte-Catherine était l'artère commerciale du Montréal d'après-guerre, ses tramways et ses grands magasins illuminés jusqu'à tard.",
+      en: "In 1947, Rue Sainte-Catherine was the commercial spine of post-war Montréal, its streetcars and department stores lit up late into the night.",
+    },
     palette: ["#0e1014", "#2a3340", "#d98a3a"],
   },
   {
@@ -132,10 +156,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 87,
     },
-    noticing:
-      "Attends la cloche : quelque part, une église sonne l'heure, et l'eau du canal en garde un léger tremblement.",
-    context:
-      "Venise en 1730 était au sommet de son carnaval et de sa musique ; Vivaldi y dirigeait encore l'orchestre de la Pietà.",
+    noticing: {
+      fr: "Attends la cloche : quelque part, une église sonne l'heure, et l'eau du canal en garde un léger tremblement.",
+      en: "Wait for the bell: somewhere a church strikes the hour, and the canal water holds a faint tremor of it.",
+    },
+    context: {
+      fr: "Venise en 1730 était au sommet de son carnaval et de sa musique ; Vivaldi y dirigeait encore l'orchestre de la Pietà.",
+      en: "Venice in 1730 was at the height of its carnival and its music; Vivaldi still directed the orchestra of the Pietà there.",
+    },
     palette: ["#16191c", "#3b4a4a", "#c9a05a"],
   },
   {
@@ -152,10 +180,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 116,
     },
-    noticing:
-      "Suis un rai de lumière poussiéreuse qui descend du toit de roseaux jusqu'à un tas de safran.",
-    context:
-      "Au début des années 1960, le Maroc venait d'accéder à l'indépendance, et les souks de Marrakech bourdonnaient du commerce des épices et de la laine.",
+    noticing: {
+      fr: "Suis un rai de lumière poussiéreuse qui descend du toit de roseaux jusqu'à un tas de safran.",
+      en: "Follow a shaft of dusty light as it falls from the reed roof onto a heap of saffron.",
+    },
+    context: {
+      fr: "Au début des années 1960, le Maroc venait d'accéder à l'indépendance, et les souks de Marrakech bourdonnaient du commerce des épices et de la laine.",
+      en: "In the early 1960s, Morocco had just gained independence, and the souks of Marrakech hummed with the trade in spices and wool.",
+    },
     palette: ["#1d160e", "#6b4420", "#e0a93a"],
   },
   {
@@ -172,10 +204,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 65,
     },
-    noticing:
-      "Regarde un flocon précis se détacher du ciel sombre et descendre, sans jamais se presser, jusqu'au halo d'un réverbère.",
-    context:
-      "En 1899, Saint-Pétersbourg, capitale impériale, vivait ses derniers hivers fastueux avant le siècle des révolutions.",
+    noticing: {
+      fr: "Regarde un flocon précis se détacher du ciel sombre et descendre, sans jamais se presser, jusqu'au halo d'un réverbère.",
+      en: "Watch one particular snowflake detach from the dark sky and drift down, never hurrying, into the halo of a street lamp.",
+    },
+    context: {
+      fr: "En 1899, Saint-Pétersbourg, capitale impériale, vivait ses derniers hivers fastueux avant le siècle des révolutions.",
+      en: "In 1899, Saint Petersburg, the imperial capital, was living its last lavish winters before the century of revolutions.",
+    },
     palette: ["#0d1016", "#2b3550", "#cdb87a"],
   },
   {
@@ -192,10 +228,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 92,
     },
-    noticing:
-      "Distingue les deux pluies : celle, fine, qui frappe les tuiles, et celle, plus grave, qui tombe en gouttes lourdes du bord du toit.",
-    context:
-      "Dans le Kyoto d'après-guerre, les ruelles de maisons de bois (machiya) gardaient un calme que la modernisation n'avait pas encore atteint.",
+    noticing: {
+      fr: "Distingue les deux pluies : celle, fine, qui frappe les tuiles, et celle, plus grave, qui tombe en gouttes lourdes du bord du toit.",
+      en: "Tell the two rains apart: the fine one tapping the tiles, and the deeper one falling in heavy drops from the roof's edge.",
+    },
+    context: {
+      fr: "Dans le Kyoto d'après-guerre, les ruelles de maisons de bois (machiya) gardaient un calme que la modernisation n'avait pas encore atteint.",
+      en: "In post-war Kyoto, the back streets of wooden machiya townhouses kept a calm that modernization had not yet reached.",
+    },
     palette: ["#14161a", "#33424a", "#a7b0a0"],
   },
   {
@@ -212,10 +252,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 98,
     },
-    noticing:
-      "Cherche le premier rayon de soleil : il touche un dôme lointain bien avant d'atteindre les toits de zinc devant toi.",
-    context:
-      "Le Paris de 1925, en pleines Années folles, s'éveillait sous une mer de toits de zinc, entre ateliers d'artistes et cafés qui ne dormaient jamais.",
+    noticing: {
+      fr: "Cherche le premier rayon de soleil : il touche un dôme lointain bien avant d'atteindre les toits de zinc devant toi.",
+      en: "Look for the first ray of sun: it touches a distant dome long before it reaches the zinc rooftops in front of you.",
+    },
+    context: {
+      fr: "Le Paris de 1925, en pleines Années folles, s'éveillait sous une mer de toits de zinc, entre ateliers d'artistes et cafés qui ne dormaient jamais.",
+      en: "The Paris of 1925, deep in the Roaring Twenties, woke beneath a sea of zinc rooftops, among artists' studios and cafés that never slept.",
+    },
     palette: ["#161820", "#3a4356", "#d6b36a"],
   },
   {
@@ -232,10 +276,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 104,
     },
-    noticing:
-      "Sens la chaleur épaisse de l'air : même le ventilateur au plafond semble tourner plus lentement qu'ailleurs.",
-    context:
-      "Dans le Hanoï des années 1930, sous l'Indochine française, les villas à véranda mêlaient l'architecture coloniale aux jardins tropicaux.",
+    noticing: {
+      fr: "Sens la chaleur épaisse de l'air : même le ventilateur au plafond semble tourner plus lentement qu'ailleurs.",
+      en: "Feel the thick heat of the air: even the ceiling fan seems to turn more slowly than it would anywhere else.",
+    },
+    context: {
+      fr: "Dans le Hanoï des années 1930, sous l'Indochine française, les villas à véranda mêlaient l'architecture coloniale aux jardins tropicaux.",
+      en: "In the Hanoi of the 1930s, under French Indochina, veranda villas blended colonial architecture with tropical gardens.",
+    },
     palette: ["#1a1810", "#5a4d28", "#d8b04a"],
   },
   {
@@ -252,10 +300,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 55,
     },
-    noticing:
-      "Laisse le vent te porter un instant : il arrive en longues vagues, monte, retombe, puis revient un peu plus fort.",
-    context:
-      "En 1972, la petite Reykjavik fut au centre du monde le temps du duel d'échecs Fischer-Spassky, en pleine guerre froide.",
+    noticing: {
+      fr: "Laisse le vent te porter un instant : il arrive en longues vagues, monte, retombe, puis revient un peu plus fort.",
+      en: "Let the wind carry you a moment: it arrives in long waves, rises, falls away, then returns a little stronger.",
+    },
+    context: {
+      fr: "En 1972, la petite Reykjavik fut au centre du monde le temps du duel d'échecs Fischer-Spassky, en pleine guerre froide.",
+      en: "In 1972, little Reykjavik became the centre of the world for the Fischer–Spassky chess duel, at the height of the Cold War.",
+    },
     palette: ["#11151a", "#2e3b44", "#b6bcc0"],
   },
   {
@@ -272,10 +324,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 82,
     },
-    noticing:
-      "Au loin, l'appel à la prière s'élève d'un minaret, puis un autre lui répond, légèrement décalé.",
-    context:
-      "Le Caire de 1910, sous administration britannique, était une capitale cosmopolite où l'on prenait le frais sur les terrasses au coucher du soleil.",
+    noticing: {
+      fr: "Au loin, l'appel à la prière s'élève d'un minaret, puis un autre lui répond, légèrement décalé.",
+      en: "Far off, the call to prayer rises from one minaret, then another answers it, slightly out of step.",
+    },
+    context: {
+      fr: "Le Caire de 1910, sous administration britannique, était une capitale cosmopolite où l'on prenait le frais sur les terrasses au coucher du soleil.",
+      en: "The Cairo of 1910, under British administration, was a cosmopolitan capital where people took the cool air on the rooftops at sunset.",
+    },
     palette: ["#181208", "#5e3f1e", "#e09a3a"],
   },
   {
@@ -292,10 +348,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 110,
     },
-    noticing:
-      "Écoute le froissement régulier d'un journal qu'on tourne, page après page, à la table d'à côté.",
-    context:
-      "Vers 1901, les cafés viennois étaient le salon de toute une intelligentsia ; on y restait des heures pour le prix d'un seul café.",
+    noticing: {
+      fr: "Écoute le froissement régulier d'un journal qu'on tourne, page après page, à la table d'à côté.",
+      en: "Listen to the steady rustle of a newspaper being turned, page after page, at the next table.",
+    },
+    context: {
+      fr: "Vers 1901, les cafés viennois étaient le salon de toute une intelligentsia ; on y restait des heures pour le prix d'un seul café.",
+      en: "Around 1901, Viennese coffee houses were the salon of an entire intelligentsia; one could linger for hours on the price of a single coffee.",
+    },
     palette: ["#191510", "#4a382a", "#caa05a"],
   },
   {
@@ -312,10 +372,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 73,
     },
-    noticing:
-      "Compte le rythme des vagues : trois petites, puis une plus longue qui s'étire sur le sable avant de se retirer.",
-    context:
-      "À la fin des années 1950, les plages de Bahia vivaient encore au rythme des jangadas, ces radeaux de pêche menés à la voile.",
+    noticing: {
+      fr: "Compte le rythme des vagues : trois petites, puis une plus longue qui s'étire sur le sable avant de se retirer.",
+      en: "Count the rhythm of the waves: three small ones, then a longer one that stretches up the sand before drawing back.",
+    },
+    context: {
+      fr: "À la fin des années 1950, les plages de Bahia vivaient encore au rythme des jangadas, ces radeaux de pêche menés à la voile.",
+      en: "In the late 1950s, the beaches of Bahia still lived to the rhythm of the jangadas, those sailing fishing rafts.",
+    },
     palette: ["#10171a", "#2a5258", "#e6c47a"],
   },
   {
@@ -332,10 +396,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 62,
     },
-    noticing:
-      "Fixe le halo du réverbère : le brouillard y bouge en lents tourbillons, comme s'il respirait.",
-    context:
-      "L'Édimbourg victorien de 1889, enfumé au charbon, inspirait directement les ruelles brumeuses des romans de Stevenson et de Conan Doyle.",
+    noticing: {
+      fr: "Fixe le halo du réverbère : le brouillard y bouge en lents tourbillons, comme s'il respirait.",
+      en: "Fix your eyes on the lamp's halo: the fog moves through it in slow eddies, as if it were breathing.",
+    },
+    context: {
+      fr: "L'Édimbourg victorien de 1889, enfumé au charbon, inspirait directement les ruelles brumeuses des romans de Stevenson et de Conan Doyle.",
+      en: "The coal-smoked Victorian Edinburgh of 1889 directly inspired the foggy closes of Stevenson's and Conan Doyle's novels.",
+    },
     palette: ["#0f1114", "#2a3038", "#c9a960"],
   },
   {
@@ -352,10 +420,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 87,
     },
-    noticing:
-      "Regarde les mosaïques turquoise : au couchant, elles ne reflètent plus la lumière mais semblent la garder à l'intérieur.",
-    context:
-      "En 1405, Samarcande était la capitale resplendissante de Tamerlan, carrefour des caravanes de la route de la soie.",
+    noticing: {
+      fr: "Regarde les mosaïques turquoise : au couchant, elles ne reflètent plus la lumière mais semblent la garder à l'intérieur.",
+      en: "Look at the turquoise mosaics: at sunset they no longer reflect the light but seem to hold it inside.",
+    },
+    context: {
+      fr: "En 1405, Samarcande était la capitale resplendissante de Tamerlan, carrefour des caravanes de la route de la soie.",
+      en: "In 1405, Samarkand was the resplendent capital of Tamerlane, a crossroads for the caravans of the Silk Road.",
+    },
     palette: ["#15171c", "#2c4a5a", "#d8b052"],
   },
   {
@@ -372,10 +444,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 98,
     },
-    noticing:
-      "Vois la vapeur monter de la chaussée chaude maintenant que le soleil revient sur les pavés mouillés.",
-    context:
-      "La Havane de 1951 était une ville de musique et de jeu, dans les dernières années avant la révolution cubaine.",
+    noticing: {
+      fr: "Vois la vapeur monter de la chaussée chaude maintenant que le soleil revient sur les pavés mouillés.",
+      en: "See the steam rising from the warm street now that the sun is back on the wet cobblestones.",
+    },
+    context: {
+      fr: "La Havane de 1951 était une ville de musique et de jeu, dans les dernières années avant la révolution cubaine.",
+      en: "The Havana of 1951 was a city of music and gambling, in the last years before the Cuban Revolution.",
+    },
     palette: ["#161812", "#3e4a30", "#e0b85a"],
   },
   {
@@ -392,10 +468,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 104,
     },
-    noticing:
-      "Observe la lumière du nord : froide et constante, elle ne projette presque pas d'ombre — c'est pour ça que le peintre l'a choisie.",
-    context:
-      "Vers 1480, Bruges était l'un des centres de la peinture flamande ; ses maîtres venaient de perfectionner la peinture à l'huile.",
+    noticing: {
+      fr: "Observe la lumière du nord : froide et constante, elle ne projette presque pas d'ombre — c'est pour ça que le peintre l'a choisie.",
+      en: "Watch the north light: cool and constant, it casts almost no shadow — which is exactly why the painter chose it.",
+    },
+    context: {
+      fr: "Vers 1480, Bruges était l'un des centres de la peinture flamande ; ses maîtres venaient de perfectionner la peinture à l'huile.",
+      en: "Around 1480, Bruges was one of the centres of Flemish painting; its masters had just perfected painting in oils.",
+    },
     palette: ["#15140f", "#403424", "#c2a262"],
   },
   {
@@ -412,10 +492,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 73,
     },
-    noticing:
-      "Suis la brume qui descend la pente entre les maisons : elle avance plus vite que tu ne l'aurais cru.",
-    context:
-      "En 1967, San Francisco vivait son « Summer of Love » ; ses collines victoriennes s'éveillaient chaque matin dans la brume du Pacifique.",
+    noticing: {
+      fr: "Suis la brume qui descend la pente entre les maisons : elle avance plus vite que tu ne l'aurais cru.",
+      en: "Follow the fog sliding down the hill between the houses: it moves faster than you'd have guessed.",
+    },
+    context: {
+      fr: "En 1967, San Francisco vivait son « Summer of Love » ; ses collines victoriennes s'éveillaient chaque matin dans la brume du Pacifique.",
+      en: "In 1967, San Francisco was living its 'Summer of Love'; its Victorian hills woke each morning in the fog off the Pacific.",
+    },
     palette: ["#14161a", "#33414a", "#cdbcba"],
   },
   {
@@ -432,10 +516,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 116,
     },
-    noticing:
-      "Écoute le cri d'un paon traverser la cour : long, rauque, puis le silence rose de l'aube reprend.",
-    context:
-      "En 1948, Jaipur, la « ville rose » du Rajasthan, intégrait la toute jeune Union indienne tout en gardant ses palais et ses cours d'eau.",
+    noticing: {
+      fr: "Écoute le cri d'un paon traverser la cour : long, rauque, puis le silence rose de l'aube reprend.",
+      en: "Listen to a peacock's cry cross the courtyard: long, hoarse, then the rose-coloured silence of dawn returns.",
+    },
+    context: {
+      fr: "En 1948, Jaipur, la « ville rose » du Rajasthan, intégrait la toute jeune Union indienne tout en gardant ses palais et ses cours d'eau.",
+      en: "In 1948, Jaipur, the 'pink city' of Rajasthan, was joining the newborn Indian Union while keeping its palaces and water courts.",
+    },
     palette: ["#1a1410", "#5e3a30", "#e0a060"],
   },
   {
@@ -452,10 +540,14 @@ export const SEED_WINDOWS: WindowSpec[] = [
       ],
       droneHz: 58,
     },
-    noticing:
-      "Regarde le reflet du navire sur l'eau noire : il tremble à peine, puis s'immobilise quand le clapot se calme.",
-    context:
-      "En 1814, la Norvège se dotait de sa première constitution ; Trondheim, vieux port de bois, vivait encore du commerce maritime du fjord.",
+    noticing: {
+      fr: "Regarde le reflet du navire sur l'eau noire : il tremble à peine, puis s'immobilise quand le clapot se calme.",
+      en: "Watch the ship's reflection on the black water: it barely trembles, then goes still as the ripple settles.",
+    },
+    context: {
+      fr: "En 1814, la Norvège se dotait de sa première constitution ; Trondheim, vieux port de bois, vivait encore du commerce maritime du fjord.",
+      en: "In 1814, Norway gave itself its first constitution; Trondheim, an old timber port, still lived on the maritime trade of the fjord.",
+    },
     palette: ["#0d1014", "#23323e", "#c9ba72"],
   },
 ];

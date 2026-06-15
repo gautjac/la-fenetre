@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Lang, WindowSpec } from "../windows";
-import { yearLabel } from "../windows";
+import { yearLabel, resolveText } from "../windows";
 import { makeT } from "../i18n";
 import { Slate } from "./Slate";
 import { BreathTimer } from "./BreathTimer";
@@ -64,7 +64,7 @@ export function WindowView({
         {imageUrl && (
           <img
             src={imageUrl}
-            alt={`${spec.place}, ${yearLabel(spec.year)}`}
+            alt={`${spec.place}, ${yearLabel(spec.year, lang)}`}
             className={reduced ? "" : "ken-burns"}
           />
         )}
@@ -82,7 +82,7 @@ export function WindowView({
 
         {/* the slate, lower-left like a film burn-in */}
         <div className="absolute left-5 bottom-4 sm:left-7 sm:bottom-6">
-          <Slate place={spec.place} year={spec.year} title={spec.title} align="left" />
+          <Slate place={spec.place} year={spec.year} title={spec.title} lang={lang} align="left" />
         </div>
       </div>
 
@@ -125,7 +125,7 @@ export function WindowView({
               {t("noticing")}
             </div>
             <p className="slate text-bone text-xl sm:text-2xl leading-relaxed italic">
-              {spec.noticing}
+              {resolveText(spec.noticing, lang)}
             </p>
           </div>
         )}
@@ -137,7 +137,7 @@ export function WindowView({
         <div className="slate tracking-slate text-bone/40 text-[10px] uppercase mb-2">
           {t("context")}
         </div>
-        <p className="text-bone/65 text-sm leading-relaxed">{spec.context}</p>
+        <p className="text-bone/65 text-sm leading-relaxed">{resolveText(spec.context, lang)}</p>
       </div>
 
       {/* ── close ── */}

@@ -72,6 +72,11 @@ export default function App() {
     document.documentElement.classList.toggle("reduce-motion", reduced);
   }, [reduced]);
 
+  // keep the document language in sync with the chosen language
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   // is the current window a favourite?
   const favRow = useLiveQuery(() => db.visited.get(windowId(spec)), [spec.place, spec.year]);
   const isFavourite = favRow?.favourite ?? false;
@@ -349,7 +354,7 @@ function Gate({
           <div className="absolute inset-0 bg-screen-deep/55" />
           <div className="frame-vignette" />
           <div className="absolute inset-0 grid place-items-center">
-            <Slate place={spec.place} year={spec.year} title={spec.title} />
+            <Slate place={spec.place} year={spec.year} title={spec.title} lang={lang} />
           </div>
         </div>
 
